@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"net"
@@ -18,6 +19,8 @@ const (
 	CommandOutProtocol = "--out-protocol"
 	CommandOutServer   = "--out-server"
 	CommandOutPort     = "--out-port"
+
+	CommandConfigFile = "--config-file"
 )
 
 var bufferSize int = 65536
@@ -29,6 +32,8 @@ var outProtocol string = "tcp"
 var outServer string = "127.0.0.1"
 var outPort string
 
+var c Config
+
 func main() {
 	checkArguments()
 	if inPort == "" || outPort == "" {
@@ -39,7 +44,7 @@ func main() {
 	ln, err := net.Listen("tcp", fmt.Sprintf(":%v", inPort))
 	if err != nil {
 		fmt.Println(err)
-		return
+		os.Exit(1)
 	}
 	fmt.Printf("Listening on port %v and forwarding to %v:%v\n", inPort, outServer, outPort)
 	for {
@@ -105,6 +110,14 @@ func checkArguments() {
 				}
 			},
 		},
+		{
+			args: []string{CommandConfigFile},
+			handler: func(current, next *string) {
+				if next != nil {
+					parseConfigurationFile(*next)
+				}
+			},
+		},
 	})
 }
 
@@ -120,24 +133,61 @@ func handleConnection(conn net.Conn) {
 	}
 
 	c := make(chan bool)
-	go forward(conn, remote, c)
-	go forward(remote, conn, c)
+	go forward(conn, remote, c, true)
+	go forward(remote, conn, c, false)
 	<-c
 
 	conn.Close()
 	remote.Close()
 }
 
-func forward(sender, receiver net.Conn, c chan bool) {
-	buf := make([]byte, bufferSize)
+func forward(sender, receiver net.Conn, c chan bool, a bool) {
 	for {
-		_, err := sender.Read(buf)
+		buf := make([]byte, bufferSize)
+		read, err := sender.Read(buf)
 		if err == io.EOF {
 			break
 		}
-		receiver.Write(buf)
+		receiver.Write(filter(buf[:read]))
 	}
 	c <- true
+}
+
+func filter(in []byte) []byte {
+	if len(c.Replace) == 0 {
+		return in
+	}
+
+	out := string(in)
+	for _, r := range c.Replace {
+		out = strings.ReplaceAll(out, r.Old, r.New)
+	}
+	return []byte(out)
+}
+
+//
+// configuration
+//
+
+type Config struct {
+	Replace []struct {
+		Old string
+		New string
+	}
+}
+
+func parseConfigurationFile(filename string) {
+	data, err := os.ReadFile(filename)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	err = json.Unmarshal(data, &c)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 }
 
 //
