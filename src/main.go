@@ -5,10 +5,13 @@ import (
 	"io"
 	"net"
 	"os"
+	"strconv"
 	"strings"
 )
 
 const (
+	CommandBufferSize = "--buffer-size"
+
 	CommandInProtocol = "--in-protocol"
 	CommandInPort     = "--in-port"
 
@@ -16,6 +19,8 @@ const (
 	CommandOutServer   = "--out-server"
 	CommandOutPort     = "--out-port"
 )
+
+var bufferSize int = 65536
 
 var inProtocol string = "tcp"
 var inPort string
@@ -45,6 +50,17 @@ func main() {
 
 func checkArguments() {
 	checkArgs(os.Args, 1, []argHandler{
+		{
+			args: []string{CommandBufferSize},
+			handler: func(current, next *string) {
+				if next != nil {
+					b, err := strconv.Atoi(*next)
+					if err == nil {
+						bufferSize = b
+					}
+				}
+			},
+		},
 		{
 			args: []string{CommandInProtocol},
 			handler: func(current, next *string) {
@@ -109,7 +125,7 @@ func handleConnection(conn net.Conn) {
 }
 
 func forward(sender, receiver net.Conn, c chan bool) {
-	buf := make([]byte, 1024)
+	buf := make([]byte, bufferSize)
 	for {
 		_, err := sender.Read(buf)
 		if err == io.EOF {
