@@ -26,12 +26,12 @@ var inProtocol string = "tcp"
 var inPort string
 
 var outProtocol string = "tcp"
-var outServer string
+var outServer string = "127.0.0.1"
 var outPort string
 
 func main() {
 	checkArguments()
-	if inPort == "" || outServer == "" || outPort == "" {
+	if inPort == "" || outPort == "" {
 		help()
 		return
 	}
