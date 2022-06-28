@@ -1,3 +1,3 @@
 #!/bin/bash
 
-go build -o ./build/out ./src/main.go
+go build -o ./build/protho ./src/main.go

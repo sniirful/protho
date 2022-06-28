@@ -1,1 +1,1 @@
-go build -o .\build\out.exe .\src\main.go
+go build -o .\build\protho.exe .\src\main.go
