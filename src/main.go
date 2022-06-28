@@ -36,7 +36,11 @@ func main() {
 		return
 	}
 
-	ln, _ := net.Listen("tcp", fmt.Sprintf(":%v", inPort))
+	ln, err := net.Listen("tcp", fmt.Sprintf(":%v", inPort))
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 	fmt.Printf("Listening on port %v and forwarding to %v:%v\n", inPort, outServer, outPort)
 	for {
 		conn, err := ln.Accept()
