@@ -11,7 +11,8 @@ import (
 )
 
 const (
-	CommandBufferSize = "--buffer-size"
+	CommandBufferSize      = "--buffer-size"
+	CommandBufferSizeAlias = "-b"
 
 	CommandInProtocol = "--in-protocol"
 	CommandInPort     = "--in-port"
@@ -20,7 +21,8 @@ const (
 	CommandOutServer   = "--out-server"
 	CommandOutPort     = "--out-port"
 
-	CommandConfigFile = "--config-file"
+	CommandConfigFile      = "--config-file"
+	CommandConfigFileAlias = "-c"
 )
 
 var bufferSize int = 65536
@@ -60,7 +62,7 @@ func main() {
 func checkArguments() {
 	checkArgs(os.Args, 1, []argHandler{
 		{
-			args: []string{CommandBufferSize},
+			args: []string{CommandBufferSize, CommandBufferSizeAlias},
 			handler: func(current, next *string) {
 				if next != nil {
 					b, err := strconv.Atoi(*next)
@@ -111,7 +113,7 @@ func checkArguments() {
 			},
 		},
 		{
-			args: []string{CommandConfigFile},
+			args: []string{CommandConfigFile, CommandConfigFileAlias},
 			handler: func(current, next *string) {
 				if next != nil {
 					parseConfigurationFile(*next)
