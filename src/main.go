@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"io"
 	"net"
 	"os"
 	"regexp"
@@ -148,7 +147,7 @@ func forward(sender, receiver net.Conn, c chan bool, a bool) {
 	for {
 		buf := make([]byte, bufferSize)
 		read, err := sender.Read(buf)
-		if err == io.EOF {
+		if err != nil {
 			break
 		}
 		receiver.Write(filter(buf[:read]))
