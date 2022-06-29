@@ -6,6 +6,7 @@ import (
 	"io"
 	"net"
 	"os"
+	"regexp"
 	"strconv"
 	"strings"
 )
@@ -161,8 +162,15 @@ func filter(in []byte) []byte {
 	}
 
 	out := string(in)
+	for _, e := range c.Exclude {
+		out = strings.ReplaceAll(out, e, "")
+	}
 	for _, r := range c.Replace {
 		out = strings.ReplaceAll(out, r.Old, r.New)
+	}
+	for _, r := range c.ReplaceReg {
+		m := regexp.MustCompile(r.Reg)
+		out = m.ReplaceAllString(out, r.New)
 	}
 	return []byte(out)
 }
@@ -172,10 +180,15 @@ func filter(in []byte) []byte {
 //
 
 type Config struct {
+	Exclude []string `json:"exclude"`
 	Replace []struct {
 		Old string
 		New string
-	}
+	} `json:"replace"`
+	ReplaceReg []struct {
+		Reg string
+		New string
+	} `json:"replace-reg"`
 }
 
 func parseConfigurationFile(filename string) {
