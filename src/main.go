@@ -150,17 +150,33 @@ func forward(sender, receiver net.Conn, c chan bool, a bool) {
 		if err != nil {
 			break
 		}
-		receiver.Write(filter(buf[:read]))
+
+		filtered, drop := filter(buf[:read])
+		if drop {
+			break
+		}
+		receiver.Write(filtered)
 	}
 	c <- true
 }
 
-func filter(in []byte) []byte {
-	if len(c.Replace) == 0 {
-		return in
+func filter(in []byte) ([]byte, bool) {
+	if len(c.Drop) == 0 && len(c.DropReg) == 0 && len(c.Exclude) == 0 && len(c.Replace) == 0 && len(c.ReplaceReg) == 0 {
+		return in, false
 	}
 
 	out := string(in)
+	for _, d := range c.Drop {
+		if strings.Contains(out, d) {
+			return []byte(""), true
+		}
+	}
+	for _, d := range c.DropReg {
+		m := regexp.MustCompile(d)
+		if len(m.FindStringIndex(out)) > 0 {
+			return []byte(""), true
+		}
+	}
 	for _, e := range c.Exclude {
 		out = strings.ReplaceAll(out, e, "")
 	}
@@ -171,7 +187,7 @@ func filter(in []byte) []byte {
 		m := regexp.MustCompile(r.Reg)
 		out = m.ReplaceAllString(out, r.New)
 	}
-	return []byte(out)
+	return []byte(out), false
 }
 
 //
@@ -179,14 +195,16 @@ func filter(in []byte) []byte {
 //
 
 type Config struct {
+	Drop    []string `json:"drop"`
+	DropReg []string `json:"drop-reg"`
 	Exclude []string `json:"exclude"`
 	Replace []struct {
-		Old string
-		New string
+		Old string `json:"old"`
+		New string `json:"new"`
 	} `json:"replace"`
 	ReplaceReg []struct {
-		Reg string
-		New string
+		Reg string `json:"reg"`
+		New string `json:"new"`
 	} `json:"replace-reg"`
 }
 
