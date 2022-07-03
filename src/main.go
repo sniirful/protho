@@ -11,15 +11,17 @@ import (
 )
 
 const (
+	Version = "0.1.0"
+
 	CommandBufferSize      = "--buffer-size"
 	CommandBufferSizeAlias = "-b"
 
-	CommandInProtocol = "--in-protocol"
-	CommandInPort     = "--in-port"
+	CommandProtocol = "--protocol"
 
-	CommandOutProtocol = "--out-protocol"
-	CommandOutServer   = "--out-server"
-	CommandOutPort     = "--out-port"
+	CommandInPort = "--in-port"
+
+	CommandOutServer = "--out-server"
+	CommandOutPort   = "--out-port"
 
 	CommandConfigFile      = "--config-file"
 	CommandConfigFileAlias = "-c"
@@ -27,10 +29,10 @@ const (
 
 var bufferSize int = 65536
 
-var inProtocol string = "tcp"
+var protocol string = "tcp"
+
 var inPort string
 
-var outProtocol string = "tcp"
 var outServer string = "127.0.0.1"
 var outPort string
 
@@ -39,11 +41,11 @@ var c Config
 func main() {
 	checkArguments()
 	if inPort == "" || outPort == "" {
-		help()
+		printHelp()
 		return
 	}
 
-	ln, err := net.Listen("tcp", fmt.Sprintf(":%v", inPort))
+	ln, err := net.Listen(protocol, fmt.Sprintf(":%v", inPort))
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
@@ -73,10 +75,10 @@ func checkArguments() {
 			},
 		},
 		{
-			args: []string{CommandInProtocol},
+			args: []string{CommandProtocol},
 			handler: func(current, next *string) {
 				if next != nil {
-					inProtocol = *next
+					protocol = *next
 				}
 			},
 		},
@@ -85,14 +87,6 @@ func checkArguments() {
 			handler: func(current, next *string) {
 				if next != nil {
 					inPort = *next
-				}
-			},
-		},
-		{
-			args: []string{CommandOutProtocol},
-			handler: func(current, next *string) {
-				if next != nil {
-					outProtocol = *next
 				}
 			},
 		},
@@ -128,7 +122,7 @@ func checkArguments() {
 //
 
 func handleConnection(conn net.Conn) {
-	remote, err := net.Dial(outProtocol, fmt.Sprintf("%v:%v", outServer, outPort))
+	remote, err := net.Dial(protocol, fmt.Sprintf("%v:%v", outServer, outPort))
 	if err != nil {
 		fmt.Println(err)
 		return
@@ -273,6 +267,65 @@ func checkArgs(args []string, startPos int, handlers []argHandler) {
 // help
 //
 
-func help() {
-	fmt.Println(`todo`)
+func printHelp() {
+	fmt.Printf(`Protho %v (July 3rd 2022). Usage:
+
+protho [<args>]
+
+Following are the args for this tool. A star (*) before the
+arg means it is mandatory. The round brackets below the arg
+indicate the default value. The square brackets below the arg
+indicate a condition for the compulsoriness.
+
+*--in-port[=PORT]           the port this tool is going to
+                            listen to to forward the packets
+                            from
+*--out-port[=PORT]          the port this tool is going to
+                            forward the packets to
+ --out-server[=SERVER]      the server this tool is going to
+                            forward the packets to
+   (--out-server=127.0.0.1)
+ -c, --config-file[=FILE]   the configuration file that
+                            specifies idk fuck it
+ -b, --buffer-size[=SIZE]   the max size for received and sent
+                            packets
+   (-b=65536)
+ --protocol[=PROTOCOL]      the protocol (tcp or udp) used for
+                            communications
+   (--protocol=tcp)
+
+You can copy the following configuration as a template for the
+configuration file:
+
+{
+    "_comment": "drops the tcp or udp connection whenever it finds a packet containing this",
+    "drop": [
+        "test-drop"
+    ],
+    "_comment": "drops the tcp or udp connection whenever it finds a regex match in the packet",
+    "drop-reg": [
+        "test[-]{1}drop-reg"
+    ],
+    "_comment": "removes every match from the packet",
+    "exclude": [
+        "test-exclude"
+    ],
+    "_comment": "replaces every instance of 'old' match with 'new'",
+    "replace": [
+        {
+            "old": "test-replace-old",
+            "new": "test-replace-new"
+        }
+    ],
+    "_comment": "replaces every instance of 'reg' regex match with 'new'",
+    "replace-reg": [
+        {
+            "reg": "test[-]{1}replace-reg",
+            "new": "test-replace-reg-done"
+        }
+    ],
+    "_comment": "note that you can remove any of 'drop', 'drop-reg', 'exclude', 'replace' and 'replace-reg' as you like"
+}
+
+`, Version)
 }
