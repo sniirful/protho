@@ -1,6 +1,3 @@
-# Protho
-Protho is a proxy server application made to be easy to use and built for both Linux and Windows.
-
 # Downloads
 - [Linux x64](https://github.com/nSneerfulBike/protho/releases/download/0.1.0/protho-linux-amd64.zip)
 - [Windows x64](https://github.com/nSneerfulBike/protho/releases/download/0.1.0/protho-windows-amd64.zip)
