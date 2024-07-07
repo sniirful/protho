@@ -1,5 +1,4 @@
 {
-  # TODO: change this when creating a new flake
   description = "Nix Flake-based FHS development environment for protho";
 
   inputs = {
@@ -12,7 +11,6 @@
       pkgs = import nixpkgs { inherit system; };
     in
     rec {
-      # TODO: change these when creating a new flake
       flakeName = "protho";
       flakeIsFHS = false;
       flakePackages = pkgs: with pkgs; [
