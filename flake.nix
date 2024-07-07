@@ -28,6 +28,9 @@
         fhsName = "${flakeName}-fhs-env";
         fhsScriptName = "${flakeName}-fhs-env-script";
 
+        # this is needed to debug:
+        # https://nixos.wiki/wiki/Go
+        hardeningDisable = [ "fortify" ];
         packages = [
           # if it's an FHS environment, we need to start bash again manually
           (pkgs.writeShellScriptBin fhsScriptName (flakeShellHook + (if flakeIsFHS then "bash" else "")))
