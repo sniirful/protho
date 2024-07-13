@@ -3,6 +3,7 @@ package proxy
 import (
 	"fmt"
 	"net"
+	"os"
 	"protho/logs"
 	"protho/proxy/socket/udp"
 )
@@ -46,8 +47,11 @@ func startUDP(
 			logs.PrintV(verbose, fmt.Sprintf("Connecting to %v:%v...", destinationServer, destinationPort))
 			remote, _, err = udp.Dial(destinationServer, destinationPort)
 			if err != nil {
-				// TODO: handle strict
 				logs.PrintE(fmt.Sprintf("Error connecting to %v:%v: %v", destinationServer, destinationPort, err))
+
+				if strict {
+					os.Exit(1)
+				}
 				return
 			}
 			sessionMap[sessionKey] = remote
