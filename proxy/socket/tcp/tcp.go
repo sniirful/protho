@@ -38,8 +38,8 @@ func Forward(sender, receiver *net.TCPConn, timeout float32, bufferSize int64, d
 
 func forwardWithTimeout(sender, receiver *net.TCPConn, timeout float32, bufferSize int64) {
 	timeoutDuration := time.Duration(timeout) * time.Second
+	buffer := make([]byte, bufferSize)
 	for {
-		buffer := make([]byte, bufferSize)
 		// TODO: does this need error checking?
 		_ = sender.SetReadDeadline(time.Now().Add(timeoutDuration))
 		read, err := sender.Read(buffer)
@@ -54,8 +54,8 @@ func forwardWithTimeout(sender, receiver *net.TCPConn, timeout float32, bufferSi
 }
 
 func forwardWithoutTimeout(sender, receiver *net.TCPConn, bufferSize int64) {
+	buffer := make([]byte, bufferSize)
 	for {
-		buffer := make([]byte, bufferSize)
 		read, err := sender.Read(buffer)
 		if err != nil {
 			break

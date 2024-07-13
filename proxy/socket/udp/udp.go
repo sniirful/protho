@@ -33,8 +33,8 @@ func Forward(sender, receiver *net.UDPConn, receiverAddress *net.UDPAddr, timeou
 
 func forwardWithTimeout(sender, receiver *net.UDPConn, receiverAddress *net.UDPAddr, timeout float32, bufferSize int64) {
 	timeoutDuration := time.Duration(timeout) * time.Second
+	buffer := make([]byte, bufferSize)
 	for {
-		buffer := make([]byte, bufferSize)
 		// TODO: does this need error checking?
 		_ = sender.SetReadDeadline(time.Now().Add(timeoutDuration))
 		read, err := sender.Read(buffer)
@@ -49,8 +49,8 @@ func forwardWithTimeout(sender, receiver *net.UDPConn, receiverAddress *net.UDPA
 }
 
 func forwardWithoutTimeout(sender, receiver *net.UDPConn, receiverAddress *net.UDPAddr, bufferSize int64) {
+	buffer := make([]byte, bufferSize)
 	for {
-		buffer := make([]byte, bufferSize)
 		read, err := sender.Read(buffer)
 		if err != nil {
 			break
