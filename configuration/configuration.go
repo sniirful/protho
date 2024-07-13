@@ -34,7 +34,10 @@ func GetConfiguration() (Configuration, error) {
 		return Configuration{}, err
 	}
 
-	configuration.BufferSize = parsedConfiguration.BufferSize
+	configuration.BufferSize, err = getBufferSize(parsedConfiguration.BufferSize)
+	if err != nil {
+		return Configuration{}, err
+	}
 	configuration.Verbose = parsedConfiguration.Verbose
 	configuration.Strict = parsedConfiguration.Strict
 

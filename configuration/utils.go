@@ -70,3 +70,14 @@ func getSplitAddress(address, defaultServer string) (string, int, error) {
 
 	return server, port, nil
 }
+
+// getBufferSize checks if the buffer size is an actual positive
+// number; if it is, it returns the same buffer size passed to
+// the function, and if it is not, it returns an error
+func getBufferSize(bufferSize int64) (int64, error) {
+	if bufferSize < 0 {
+		return 0, fmt.Errorf("buffer size must be a positive number")
+	}
+
+	return bufferSize, nil
+}
