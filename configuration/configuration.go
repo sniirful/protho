@@ -10,6 +10,7 @@ type Configuration struct {
 	DestinationServer string
 	DestinationPort   int
 	Protocol          string
+	NoPacketTimeout   float32
 	BufferSize        int64
 	Verbose           bool
 	Strict            bool
@@ -34,6 +35,10 @@ func GetConfiguration() (Configuration, error) {
 		return Configuration{}, err
 	}
 
+	configuration.NoPacketTimeout, err = getTimeout(parsedConfiguration.NoPacketTimeout)
+	if err != nil {
+		return Configuration{}, err
+	}
 	configuration.BufferSize, err = getBufferSize(parsedConfiguration.BufferSize)
 	if err != nil {
 		return Configuration{}, err

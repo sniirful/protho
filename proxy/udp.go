@@ -13,6 +13,7 @@ func startUDP(
 	sourcePort int,
 	destinationServer string,
 	destinationPort int,
+	timeout float32,
 	bufferSize int64,
 	verbose bool,
 	strict bool,
@@ -69,9 +70,7 @@ func startUDP(
 				// so we can freely wait for this function call to
 				// finish and then we proceed
 				logs.PrintV(verbose, fmt.Sprintf("Forwarding: %v -> %v", remote.RemoteAddr().String(), address.String()))
-				done := make(chan bool)
-				udp.Forward(remote, connection, address, bufferSize, done)
-				close(done)
+				udp.Forward(remote, connection, address, timeout, bufferSize)
 
 				// TODO: check if it ever stops forwarding
 				logs.PrintV(verbose, fmt.Sprintf("Stopped forwarding: %v -> %v", remote.RemoteAddr().String(), address.String()))

@@ -13,6 +13,7 @@ func startTCP(
 	sourcePort int,
 	destinationServer string,
 	destinationPort int,
+	timeout float32,
 	bufferSize int64,
 	verbose bool,
 	strict bool,
@@ -57,8 +58,8 @@ func startTCP(
 		// outbound connection is we forward each to the
 		// other, and once one is done we close both
 		done := make(chan bool)
-		go tcp.Forward(connection, remote, bufferSize, done)
-		go tcp.Forward(remote, connection, bufferSize, done)
+		go tcp.Forward(connection, remote, timeout, bufferSize, done)
+		go tcp.Forward(remote, connection, timeout, bufferSize, done)
 		<-done
 		close(done)
 	}, func(err error) {

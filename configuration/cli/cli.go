@@ -10,9 +10,10 @@ type CLI struct {
 
 	Protocol string `name:"protocol" short:"p" help:"The protocol to use in the communication. One of 'tcp' or 'udp'." default:"tcp"`
 
-	BufferSize int64 `name:"buffer-size" short:"b" help:"How many bytes to proxy in one chunk at maximum." default:"65535"`
-	Verbose    bool  `name:"verbose" short:"v" help:"Print more information about inbound and outbound connections." default:"false"`
-	Strict     bool  `name:"strict" short:"s" help:"Be more strict about errors, do not ignore them and crash the program instead." default:"false"`
+	NoPacketTimeout float32 `name:"timeout" short:"t" help:"How much time to wait in seconds without any packets in order to close the connection. Zero means no timeout." default:"0"`
+	BufferSize      int64   `name:"buffer-size" short:"b" help:"How many bytes to proxy in one chunk at maximum." default:"65535"`
+	Verbose         bool    `name:"verbose" short:"v" help:"Print more information about inbound and outbound connections." default:"false"`
+	Strict          bool    `name:"strict" short:"s" help:"Be more strict about errors, do not ignore them and crash the program instead." default:"false"`
 }
 
 func ParseParameters() CLI {

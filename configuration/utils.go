@@ -71,6 +71,17 @@ func getSplitAddress(address, defaultServer string) (string, int, error) {
 	return server, port, nil
 }
 
+// getTimeout checks if the timeout is an actual positive
+// number; if it is, it returns the same timeout passed to
+// the function, and if it is not, it returns an error
+func getTimeout(timeout float32) (float32, error) {
+	if timeout < 0 {
+		return 0, fmt.Errorf("timeout must be a positive number")
+	}
+
+	return timeout, nil
+}
+
 // getBufferSize checks if the buffer size is an actual positive
 // number; if it is, it returns the same buffer size passed to
 // the function, and if it is not, it returns an error

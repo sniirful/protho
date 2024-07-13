@@ -24,6 +24,7 @@ func main() {
 		config.SourcePort,
 		config.DestinationServer,
 		config.DestinationPort,
+		config.NoPacketTimeout,
 		config.BufferSize,
 		config.Verbose,
 		config.Strict,
